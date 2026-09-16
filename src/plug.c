@@ -5,7 +5,7 @@
 #include <math.h>
 #include <string.h>
 #include <complex.h>
-
+#define NEXT_PLAY_EPSILON 0.5
 #include "build/config.h"
 #include "plug.h"
 #include "ffmpeg.h"
@@ -716,6 +716,17 @@ void track_label(Font font, const char *text, Vector2 position, float fontSize, 
     }
 }
 
+bool GetMusicEnded(Music music, float epsilon){
+  float played = GetMusicTimePlayed(music);
+  float len = GetMusicTimeLength(music);
+  return len - played < epsilon;
+}
+
+void set_next_track(){
+  if(!p || p->tracks.count == 0) return;
+  p->current_track = (p->current_track + 1) % p->tracks.count;
+}
+
 #define tracks_panel(panel_boundary) \
     tracks_panel_with_location(__FILE__, __LINE__, panel_boundary)
 static void tracks_panel_with_location(const char *file, int line, Rectangle panel_boundary)
@@ -776,6 +787,7 @@ static void tracks_panel_with_location(const char *file, int line, Rectangle pan
                 if (track) StopMusicStream(track->music);
                 PlayMusicStream(p->tracks.items[i].music);
                 p->current_track = i;
+                printf("DEBUG : Playing music track code 001\n");
             }
         } else {
             color = COLOR_TRACK_BUTTON_SELECTED;
@@ -1465,7 +1477,17 @@ static void preview_screen(void)
 #endif // MUSIALIZER_MICROPHONE
 
     Track *track = current_track();
+
+    if(track && GetMusicEnded(track->music, NEXT_PLAY_EPSILON)){
+      set_next_track();
+      StopMusicStream(track->music);
+      track = current_track();
+      PlayMusicStream(track->music);
+      printf("DEBUG : Next track playing!\n");
+    }
     if (track) { // The music is loaded and ready
+
+
         UpdateMusicStream(track->music);
 
         if (IsKeyPressed(KEY_TOGGLE_PLAY)) {
