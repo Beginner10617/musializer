@@ -1278,8 +1278,10 @@ static int microphone_button_with_location(const char *file, int line,
 static void restart_track(Track *track) {
   printf("INFO: Restarting current track\n");
   float len = GetMusicTimeLength(track->music);
-  if (IsMusicStreamPlaying(track->music))
-    SeekMusicStream(track->music, len);
+  if (!IsMusicStreamPlaying(track->music)) {
+    ResumeMusicStream(track->music);
+  }
+  SeekMusicStream(track->music, len);
 }
 
 static void toggle_track_playing(Track *track) {
