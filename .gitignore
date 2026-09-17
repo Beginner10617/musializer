@@ -18,3 +18,6 @@ nob.obj
 
 # Mac specific
 .DS_Store
+
+# Playlist file for testing
+*.txt
