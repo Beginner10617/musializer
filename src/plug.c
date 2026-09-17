@@ -1925,7 +1925,7 @@ MUSIALIZER_PLUG void plug_init(FilePathList init_tracks) {
   p->current_track = -1;
 
   // TODO: restore master volume between sessions
-  SetMasterVolume(0.5);
+  SetMasterVolume(1.0);
   SetTargetFPS(PREVIEW_FPS);
 
   for (size_t i = 0; i < init_tracks.count; ++i) {
