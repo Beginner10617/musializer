@@ -96,6 +96,7 @@ MUSIALIZER_PLUG void *plug_load_resource(const char *file_path, size_t *size) {
 
 #define KEY_TOGGLE_PLAY KEY_SPACE
 #define KEY_RENDER KEY_R
+#define KEY_RESTART KEY_ZERO
 #define KEY_FULLSCREEN KEY_F
 #define KEY_CAPTURE KEY_C
 #define KEY_TOGGLE_MUTE KEY_M
@@ -784,7 +785,6 @@ static void tracks_panel_with_location(const char *file, int line,
           StopMusicStream(track->music);
         PlayMusicStream(p->tracks.items[i].music);
         p->current_track = i;
-        printf("DEBUG : Playing music track code 001\n");
       }
     } else {
       color = COLOR_TRACK_BUTTON_SELECTED;
@@ -1275,6 +1275,12 @@ static int microphone_button_with_location(const char *file, int line,
   return state;
 }
 #endif // MUSIALIZER_MICROPHONE
+static void restart_track(Track *track) {
+  printf("INFO: Restarting current track\n");
+  float len = GetMusicTimeLength(track->music);
+  if (IsMusicStreamPlaying(track->music))
+    SeekMusicStream(track->music, len);
+}
 
 static void toggle_track_playing(Track *track) {
   if (IsMusicStreamPlaying(track->music)) {
@@ -1494,7 +1500,7 @@ static void preview_screen(void) {
     StopMusicStream(track->music);
     track = current_track();
     PlayMusicStream(track->music);
-    printf("DEBUG : Next track playing!\n");
+    printf("DEBUG: Next track playing!\n");
   }
   if (track) { // The music is loaded and ready
 
@@ -1506,6 +1512,10 @@ static void preview_screen(void) {
 
     if (IsKeyPressed(KEY_RENDER)) {
       start_rendering_track(track);
+    }
+
+    if (IsKeyPressed(KEY_RESTART)) {
+      restart_track(track);
     }
 
     if (IsKeyPressed(KEY_FULLSCREEN)) {
@@ -1561,7 +1571,7 @@ static void preview_screen(void) {
       popup_tray(&p->pt, preview_boundary);
     } else {
       float tracks_panel_width = 320.0f;
-      float timeline_height = 150.0f;
+      float timeline_height = 20.0f;
       Rectangle preview_boundary = {
           .x = tracks_panel_width,
           .y = 0,
