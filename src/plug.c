@@ -1502,7 +1502,7 @@ static void preview_screen(void) {
     StopMusicStream(track->music);
     track = current_track();
     PlayMusicStream(track->music);
-    printf("DEBUG: Next track playing!\n");
+    printf("INFO: Next track playing!\n");
   }
   if (track) { // The music is loaded and ready
 
