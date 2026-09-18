@@ -97,6 +97,7 @@ MUSIALIZER_PLUG void *plug_load_resource(const char *file_path, size_t *size) {
 #define KEY_TOGGLE_PLAY KEY_SPACE
 #define KEY_RENDER KEY_R
 #define KEY_RESTART KEY_ZERO
+#define KEY_TOGGLE_MODE KEY_L
 #define KEY_FULLSCREEN KEY_F
 #define KEY_CAPTURE KEY_C
 #define KEY_TOGGLE_MUTE KEY_M
@@ -126,10 +127,16 @@ typedef struct {
   Music music;
 } Track;
 
+typedef enum {
+  LOOP_ALL,
+  LOOP_ONE,
+} Track_mode;
+
 typedef struct {
   Track *items;
   size_t count;
   size_t capacity;
+  Track_mode mode;
 } Tracks;
 
 typedef struct {
@@ -1284,6 +1291,12 @@ static void restart_track(Track *track) {
   SeekMusicStream(track->music, len);
 }
 
+static void toggle_track_mode(Tracks *tracks) {
+  printf("INFO: New track mode : %s\n",
+         (tracks->mode ? "loop all" : "loop one"));
+  tracks->mode = !tracks->mode;
+}
+
 static void toggle_track_playing(Track *track) {
   if (IsMusicStreamPlaying(track->music)) {
     PauseMusicStream(track->music);
@@ -1497,7 +1510,8 @@ static void preview_screen(void) {
 
   Track *track = current_track();
 
-  if (track && GetMusicEnded(track->music, NEXT_PLAY_EPSILON)) {
+  if (track && GetMusicEnded(track->music, NEXT_PLAY_EPSILON) &&
+      p->tracks.mode == LOOP_ALL) {
     set_next_track();
     StopMusicStream(track->music);
     track = current_track();
@@ -1518,6 +1532,10 @@ static void preview_screen(void) {
 
     if (IsKeyPressed(KEY_RESTART)) {
       restart_track(track);
+    }
+
+    if (IsKeyPressed(KEY_TOGGLE_MODE)) {
+      toggle_track_mode(&p->tracks);
     }
 
     if (IsKeyPressed(KEY_FULLSCREEN)) {
