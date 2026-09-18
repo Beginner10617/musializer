@@ -1488,6 +1488,7 @@ static bool toolbar(Track *track, Rectangle boundary) {
 }
 
 static void preview_screen(void) {
+  // TODO : Source srt files and display lyrics
   int w = GetScreenWidth();
   int h = GetScreenHeight();
 
