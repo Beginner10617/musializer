@@ -804,7 +804,18 @@ static void tracks_panel_with_location(const char *file, int line,
     // into that
     DrawRectangleRounded(item_boundary, 0.2, 20, color);
 
-    const char *text = GetFileName(p->tracks.items[i].file_path);
+    char *text, *file_name = GetFileName(p->tracks.items[i].file_path);
+    if (!looping_display)
+      text = file_name;
+    else {
+      text = malloc(sizeof(char) * (strlen(file_name) + 4));
+      text[0] = '[';
+      text[1] = 'L';
+      text[2] = ']';
+      text[3] = ' ';
+      for (int i = 0; i < strlen(file_name); i++)
+        text[i + 4] = file_name[i];
+    }
     float fontSize = item_boundary.height * 0.5;
     float text_padding = item_boundary.width * 0.05;
     Vector2 size = MeasureTextEx(p->font, text, fontSize, 0);
@@ -853,7 +864,6 @@ static void tracks_panel_with_location(const char *file, int line,
     } else { // <-- No need for ScissorMode
       track_label(p->font, text, position, fontSize, WHITE);
     }
-    // TODO : If looping_display, display  loop int the box
   }
 
   // TODO: up and down clickable buttons on the scrollbar
