@@ -776,6 +776,7 @@ static void tracks_panel_with_location(const char *file, int line,
         .height = item_size - panel_padding * 2,
     };
     Color color;
+    bool looping_display = false;
     if (((int)i != p->current_track)) {
       uint64_t item_id = djb2(id, &i, sizeof(i));
 
@@ -794,6 +795,8 @@ static void tracks_panel_with_location(const char *file, int line,
         p->current_track = i;
       }
     } else {
+      if (p->tracks.mode == LOOP_ONE)
+        looping_display = true;
       color = COLOR_TRACK_BUTTON_SELECTED;
     }
     // TODO: enable MSAA so the rounded rectangles look better
@@ -850,6 +853,7 @@ static void tracks_panel_with_location(const char *file, int line,
     } else { // <-- No need for ScissorMode
       track_label(p->font, text, position, fontSize, WHITE);
     }
+    // TODO : If looping_display, display  loop int the box
   }
 
   // TODO: up and down clickable buttons on the scrollbar
@@ -1516,7 +1520,7 @@ static void preview_screen(void) {
     StopMusicStream(track->music);
     track = current_track();
     PlayMusicStream(track->music);
-    printf("INFO: Next track playing!\n");
+    printf("INFO: Next track playing %s\n", track->file_path);
   }
   if (track) { // The music is loaded and ready
 
